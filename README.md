@@ -30,12 +30,12 @@ A secrets.py file (see example) must be on the device and contain the secret use
 
 ### Time Synchronization Methods
 
-- [Network Time Protocol (NTP)](diacoba1/2FA/Client%Device/NTP_2FA.py): This method of time syncronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server.
+- [Network Time Protocol (NTP)](Client%Device/NTP_2FA.py): This method of time syncronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server.
   - If using with a mobile hotspot, ensure the hotspot is enabled prior to powering the device or it will fail to connect.
   - The LED will blink green indefinitely once the client device successfully connected to a wifi network and synchronized the time.
   - [NTP background](https://en.wikipedia.org/wiki/Network_Time_Protocol)
 
-- [Emitter Device](diacoba1/2FA/Client%Device/NTP_2FA.py): This method of synchronization takes a wifi broadcast of the current UTC time as seconds in the current Epoch (Time: "XXXXXXXXX"), removes the "Time:" pre-fix, and converts the remaining wifi name to an integer to use for 2FA generation.
+- [Emitter Device](Client%Device/parseWifi_2FA.py): This method of synchronization takes a wifi broadcast of the current UTC time as seconds in the current Epoch (Time: "XXXXXXXXX"), removes the "Time:" pre-fix, and converts the remaining wifi name to an integer to use for 2FA generation.
   - As multiple wifi signals may be present at the same, the device keeps the greatest number of seconds of any of the broadcasts.
   - The client device will check for a wifi network on each button press, to ensure the time is within the current 30 second interval
 
