@@ -34,7 +34,7 @@ A secrets.py file (see example) must be on the device and contain the secret use
 
 ### Time Synchronization Methods
 
-- [Get Time from Network Time Protocol (NTP)](CClientDevice/2FAClientDevice_InternalRTCOnly_Networked.py): This method of time syncronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server -- requires network connectivity.
+- [Get Time from Network Time Protocol (NTP)](ClientDevice/2FAClientDevice_InternalRTCOnly_Networked.py): This method of time syncronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server -- requires network connectivity.
   - If using with a mobile hotspot, ensure the hotspot is enabled prior to powering the device or it will fail to connect.
   - The onboard LED will blink green slowly (every 0.3 seconds) once the client device successfully connected to a wifi network and synchronized the time.
   - The onboard LED will blink green rapidly (every 0.1 seconds) if the device is not connected to any wifi network
