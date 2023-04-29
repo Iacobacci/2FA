@@ -6,6 +6,20 @@ import board, digitalio, usb_hid #Keyboard Input Library
 from adafruit_hid.keyboard import Keyboard #Keyboard Input Library
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS #Keyboard Input Library
 
+#Configure the onboard LED
+led = digitalio.DigitalInOut(board.LED)
+led.direction = digitalio.Direction.OUTPUT
+
+#Configure the HID Keyboard
+keyboard = Keyboard(usb_hid.devices)
+layout = KeyboardLayoutUS(keyboard)
+
+#Configure 2FA Trigger Button
+twoFactorTrigger_pin = board.GP10
+twoFactorTrigger = digitalio.DigitalInOut(twoFactorTrigger_pin)
+twoFactorTrigger.direction = digitalio.Direction.INPUT
+twoFactorTrigger.pull = digitalio.Pull.DOWN
+
 # Get wifi and 2FA secret from secrets.py file on the pico
 try:
     from secrets import secrets
@@ -26,40 +40,30 @@ def get_hotp_token(secret, intervals_no):
     return h
 
 def get_totp_token(secret):
+    #Gets the two factor code by generating the HOTP token with the current 30 second block
     twoFactorCode = str(get_hotp_token(secret,intervals_no=int(time.time())//30))
+    
+    #Adds leading zeros if the code is less than 6 digits
     while len(twoFactorCode)!=6:
         twoFactorCode = '0' + twoFactorCode
     return twoFactorCode
-
-keyboard = Keyboard(usb_hid.devices)
-layout = KeyboardLayoutUS(keyboard)
-
-twoFactorTrigger_pin = board.GP10
-twoFactorTrigger = digitalio.DigitalInOut(twoFactorTrigger_pin)
-twoFactorTrigger.direction = digitalio.Direction.INPUT
-twoFactorTrigger.pull = digitalio.Pull.DOWN
-
-led = digitalio.DigitalInOut(board.LED)
-led.direction = digitalio.Direction.OUTPUT
 
 networkTime = 0
 
 while True:
     led.value = not led.value
-    #print(time.time())
     if twoFactorTrigger.value:
         #Get all currently available networks
-        t1 = time.time()
         for network in wifi.radio.start_scanning_networks():
             currentNetwork = network.ssid
+            #Check to see if any available networks are in the "Time: <Seconds in current Epoch> formatting"
             if currentNetwork[0:5] == 'Time:' and int(currentNetwork[5:]) > int(networkTime) :
                 print(currentNetwork[5:])
                 networkTime = currentNetwork[5:]
             wifi.radio.stop_scanning_networks()
-        t2 = time.time()
         #Set RTC to NTP
         rtc.RTC().datetime = time.localtime(int(networkTime))
-        print("Time duration:" + str((t2-t1)))
         
+        #Send the 2FA code to the connected device
         layout.write(get_totp_token(secrets["secret"]) + "\n")
     time.sleep(0.3)

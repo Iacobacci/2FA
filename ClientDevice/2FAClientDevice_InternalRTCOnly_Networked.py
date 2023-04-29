@@ -6,6 +6,20 @@ import board, digitalio, usb_hid #Keyboard Input Library
 from adafruit_hid.keyboard import Keyboard #Keyboard Input Library
 from adafruit_hid.keyboard_layout_us import KeyboardLayoutUS #Keyboard Input Library
 
+#Configure the onboard LED
+led = digitalio.DigitalInOut(board.LED)
+led.direction = digitalio.Direction.OUTPUT
+
+#Configure the HID Keyboard
+keyboard = Keyboard(usb_hid.devices)
+layout = KeyboardLayoutUS(keyboard)
+
+#Configure 2FA Trigger Button
+twoFactorTrigger_pin = board.GP10
+twoFactorTrigger = digitalio.DigitalInOut(twoFactorTrigger_pin)
+twoFactorTrigger.direction = digitalio.Direction.INPUT
+twoFactorTrigger.pull = digitalio.Pull.DOWN
+
 # Get wifi and 2FA secret from secrets.py file on the pico
 try:
     from secrets import secrets
@@ -13,15 +27,24 @@ except ImportError:
     print("WiFi and 2FA secrets are kept in a secrets.py on the Pico, please add them there!")
     raise
 
-#Ger all currently available networks
+#Get all currently available networks
 for network in wifi.radio.start_scanning_networks():
     print(network, network.ssid)
     wifi.radio.stop_scanning_networks()
 
-print("joining network...")
-# Print "ConnectionError: Unknown failure" if ssid/passwd is wrong
-print(wifi.radio.connect(secrets["ssid"], secrets["password"]))
-
+#Connect to the primary network if it is available
+try:
+    #Prints if there is an error
+    print(wifi.radio.connect(secrets["primary_ssid"], secrets["primary_password"]))
+except ConnectionError:
+    #Connect to the secondary network if it is available
+    try:
+        print(wifi.radio.connect(secrets["secondary_ssid"], secrets["secondary_password"]))
+    except ConnectionError:
+        while(True):
+            led.value = not led.value
+            time.sleep(0.1)
+            
 #Get time from NTP
 ntp = adafruit_ntp.NTP(socketpool.SocketPool(wifi.radio), tz_offset=0)
 
@@ -41,24 +64,18 @@ def get_hotp_token(secret, intervals_no):
     return h
 
 def get_totp_token(secret):
+    #Gets the two factor code by generating the HOTP token with the current 30 second block
     twoFactorCode = str(get_hotp_token(secret,intervals_no=int(time.time())//30))
+    
+    #Adds leading zeros if the code is less than 6 digits
     while len(twoFactorCode)!=6:
         twoFactorCode = '0' + twoFactorCode
     return twoFactorCode
 
-keyboard = Keyboard(usb_hid.devices)
-layout = KeyboardLayoutUS(keyboard)
-
-twoFactorTrigger_pin = board.GP10
-twoFactorTrigger = digitalio.DigitalInOut(twoFactorTrigger_pin)
-twoFactorTrigger.direction = digitalio.Direction.INPUT
-twoFactorTrigger.pull = digitalio.Pull.DOWN
-
-led = digitalio.DigitalInOut(board.LED)
-led.direction = digitalio.Direction.OUTPUT
-
 while True:
     led.value = not led.value
+    
+    #Use HID to output the code everytime the button is pressed
     if twoFactorTrigger.value:
         layout.write(get_totp_token(secrets["secret"]) + "\n")
     time.sleep(0.3)
