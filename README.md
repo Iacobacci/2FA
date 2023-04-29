@@ -1,4 +1,4 @@
-# 2FA Pico
+# Two Factor Authentication (2FA) Raspberry Pi Pico Client
 
 This project was designed as a way to simplify the user interface/experience for low-security applications of two-factor authentication. This project uses one (or more) Raspberry Pi Pico W('s) due to their relatively low cost and wifi capabilities.
 
@@ -16,11 +16,11 @@ The Client device is a Raspberry Pi Pico running CircuitPython that takes the cu
 
 ### Hardware
 
-The client device requires a button between GPIO 10 (Pin 14) on the Raspberry Pi Pico W and 3.3v (Pin 36) to trigger the write of the 2FA token to the connected computer. [A Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html)
+The client device requires a button between GPIO 10 (Pin 14) on the [Raspberry Pi Pico W](https://www.raspberrypi.com/documentation/microcontrollers/raspberry-pi-pico.html) and 3.3v (Pin 36) to trigger the write of the 2FA token to the connected computer.
 
 ### Software
 
-The client device needs to be formatted by first entering bootloader mode (holding the bootsel button while plugging the pico into your computer), before uploading the most recent [Circuit Python Binaries](https://circuitpython.org/board/raspberry_pi_pico/) to the device. Once installed, the device will disconnect and remount as "CIRCUITPY." This device uses CircuitPython due to MicroPython not supporting USB_HID at the time of this project being completed. Adafruit Blinka and Platform Detect *should* be able to be used as a compatibility layer between CircuitPython and MicroPythion allowing the USB_HID libraries to function properly, however, upon testing it caused significant syntax errors and appears to not yet be fully supported.
+The client device needs to be formatted by first entering bootloader mode (holding the bootsel button while plugging the Pico into your computer), before uploading the most recent [Circuit Python Binaries](https://circuitpython.org/board/raspberry_pi_pico/) to the device. Once installed, the device will disconnect and remount as "CIRCUITPY." This device uses CircuitPython due to MicroPython not supporting USB_HID at the time of this project being completed. Adafruit Blinka and Platform Detect *should* be able to be used as a compatibility layer between CircuitPython and MicroPython allowing the USB_HID libraries to function properly, however, upon testing it caused significant syntax errors and appears to not yet be fully supported.
 
 Now the appropriate libraries could be installed on the device:
 
@@ -34,7 +34,7 @@ A secrets.py file (see example) must be on the device and contain the secret use
 
 ### Time Synchronization Methods
 
-- [Get Time from Network Time Protocol (NTP)](ClientDevice/2FAClientDevice_InternalRTCOnly_Networked.py): This method of time syncronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server -- requires network connectivity.
+- [Get Time from Network Time Protocol (NTP)](ClientDevice/2FAClientDevice_InternalRTCOnly_Networked.py): This method of time synchronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server -- requires network connectivity.
   - If using with a mobile hotspot, ensure the hotspot is enabled prior to powering the device or it will fail to connect.
   - The onboard LED will blink green slowly (every 0.3 seconds) once the client device successfully connected to a wifi network and synchronized the time.
   - The onboard LED will blink green rapidly (every 0.1 seconds) if the device is not connected to any wifi network
@@ -44,7 +44,7 @@ A secrets.py file (see example) must be on the device and contain the secret use
   - As multiple wifi signals may be present at the same, the device keeps the greatest number of seconds of any of the broadcasts.
   - The client device will check for a wifi network on each button press, to ensure the time is within the current 30 second interval
 
-- EXPERIMENTAL: [Get Time from local file](ClientDevice/2FAClientDevice_InternalRTCOnly_CreateFileWithTime.py): This program is configured to run on macOS and will automatically open a Terminal File, navigate to the Pico directory, and make a file with the time. The idea was to then sync time with the time located in the file on the device, or the modification time of the file. **This does not currently work due to issues in the Pico recongizing files created after the program ran.**
+- EXPERIMENTAL: [Get Time from local file](ClientDevice/2FAClientDevice_InternalRTCOnly_CreateFileWithTime.py): This program is configured to run on macOS and will automatically open a Terminal File, navigate to the Pico directory, and make a file with the time. The idea was to then sync time with the time located in the file on the device, or the modification time of the file. **This does not currently work due to issues in the Pico recognizing files created after the program ran.**
 
 Either of these programs will need to be renamed to "main.py" on the device to have it automatically run on device connection.
 
@@ -62,7 +62,7 @@ The Client device is a Raspberry Pi Pico running CircuitPython that takes the cu
 
 ### Software
 
-The client device needs to be formatted by first entering bootloader mode (holding the bootsel button while plugging the pico into your computer), before uploading the most recent [Circuit Python Binaries](https://circuitpython.org/board/raspberry_pi_pico/) to the device. Once installed, the device will disconnect and remount as "CIRCUITPY." This device uses CircuitPython due to MicroPython not supporting USB_HID at the time of this project being completed. Adafruit Blinka and Platform Detect *should* be able to be used as a compatibility layer between CircuitPython and MicroPythion allowing the USB_HID libraries to function properly, however, upon testing it caused significant syntax errors and appears to not yet be fully supported.
+The client device needs to be formatted by first entering bootloader mode (holding the bootsel button while plugging the Pico into your computer), before uploading the most recent [Circuit Python Binaries](https://circuitpython.org/board/raspberry_pi_pico/) to the device. Once installed, the device will disconnect and remount as "CIRCUITPY." This device uses CircuitPython due to MicroPython not supporting USB_HID at the time of this project being completed. Adafruit Blinka and Platform Detect *should* be able to be used as a compatibility layer between CircuitPython and MicroPython allowing the USB_HID libraries to function properly, however, upon testing it caused significant syntax errors and appears to not yet be fully supported.
 
 Now the appropriate libraries could be installed on the device:
 
@@ -80,7 +80,7 @@ A [secrets.py](ClientDevice/secrets.py) file (see example) must be on the device
 
 ### Time Synchronization Methods
 
-- [Get Time from Network Time Protocol (NTP)](ClientDevice/2FAClientDevice_ExternalRTC_Networked.py): This method of time syncronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server -- requires network connectivity.
+- [Get Time from Network Time Protocol (NTP)](ClientDevice/2FAClientDevice_ExternalRTC_Networked.py): This method of time synchronization connects the client device to a wifi network (home, office, mobile hotspot, etc) and fetches the time from the NTP server -- requires network connectivity.
   - If using with a mobile hotspot, ensure the hotspot is enabled prior to powering the device or it will fail to connect.
   - The external LED will be yellow until networks are checked. If there is a network available, the LED will turn Green. If not network is available, but the external RTC is synced, the LED will turn blue. Otherwise it turns red.
   - [NTP background](https://en.wikipedia.org/wiki/Network_Time_Protocol)
@@ -89,7 +89,7 @@ A [secrets.py](ClientDevice/secrets.py) file (see example) must be on the device
 
 ## Emitter Device
 
-The emitter device is a Raspberry Pi Pico W Configured with a Pimoroni displaypack. A user configures the time via the display pack, and then the time is broadcase via a soft access point to allow multiple client devices to sync time from that device.
+The emitter device is a Raspberry Pi Pico W Configured with a Pimoroni Displaypack. A user configures the time via the display pack, and then the time is broadcast via a soft access point to allow multiple client devices to sync time from that device.
 
 ### Hardware
 
@@ -99,9 +99,9 @@ The emitter device is a Raspberry Pi Pico W Configured with a Pimoroni displaypa
 
 ### Software
 
-The emitter device needs to be formatted by first entering bootloader mode (holding the bootsel button while plugging the pico into your computer), before uploading the most recent [Pimoroni Micropython Pico Binary](https://github.com/pimoroni/pimoroni-pico/releases) to the device. Once installed, the device will disconnect and remount as "CIRCUITPY." This device uses the Pimoroni flavor of Micropython due to ease in connecting the Display Pack.
+The emitter device needs to be formatted by first entering bootloader mode (holding the bootsel button while plugging the Pico into your computer), before uploading the most recent [Pimoroni MicroPython Pico Binary](https://github.com/pimoroni/pimoroni-pico/releases) to the device. Once installed, the device will disconnect and remount as "CIRCUITPY." This device uses the Pimoroni flavor of MicroPython due to ease in connecting the Display Pack.
 
-All required libraries should be installed by the Pimoroni Micropython binary listed above.
+All required libraries should be installed by the Pimoroni MicroPython binary listed above.
 
 The [configureTime.py](EmitterDevice/configureTime.py) file configures the time using the PIM543 displaypack, and the [broadcastTime.py](EmitterDevice/broadcastTime.py) file uses that time to broadcast the accurate time as a soft access point. The [2FAClientDevice_InternalRTCOnly_NotNetworked](ClientDevice/2FAClientDevice_InternalRTCOnly_NotNetworked.py) file pulls that time on each button press to resync the time. Inaccuracies in timing may occur based on how recently the time was configured, and if there were significant delays in getting the time.
 
